@@ -70,7 +70,7 @@ namespace EnhancedBattleTest.UI
             RemoveLayer();
             if (!_isLastActiveGameStatePaused)
                 return;
-            GameStateManager.Current.ActiveStateDisabledByUser = _isLastActiveGameStateActive;
+            //GameStateManager.Current.ActiveStateDisabledByUser = _isLastActiveGameStateActive;
             MBCommon.UnPauseGameEngine();
         }
 

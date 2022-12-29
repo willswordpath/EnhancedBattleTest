@@ -4,7 +4,9 @@ using System.Linq;
 using System.Reflection;
 using EnhancedBattleTest.Config;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.MapEvents;
 using TaleWorlds.CampaignSystem.Party;
+using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
@@ -179,7 +181,7 @@ namespace EnhancedBattleTest
                 {
                     bool isAIControlled = formation.IsAIControlled;
                     formation.PlayerOwner = mission.MainAgent;
-                    formation.IsAIControlled = isAIControlled;
+                    formation.SetControlledByAI(isAIControlled);
                 }
             }
         }
@@ -212,7 +214,7 @@ namespace EnhancedBattleTest
                 return null;
             //var result = new ItemModifier { ID = string.Empty };
             var result = MBObjectManager.Instance.CreateObject<ItemModifier>(string.Empty);
-            float sum = 0;
+            /*float sum = 0;
             foreach (var probability in group.ItemModifiersWithProbability.Values)
             {
                 sum += probability.Probability;
@@ -273,7 +275,7 @@ namespace EnhancedBattleTest
             typeof(ItemModifier).GetField("_mountSpeed", bindingFlag)?.SetValue(result, (int)mountSpeed);
             typeof(ItemModifier).GetField("_maneuver", bindingFlag)?.SetValue(result, (int)maneuver);
             typeof(ItemModifier).GetField("_chargeDamage", bindingFlag)?.SetValue(result, (int)chargeDamage);
-            typeof(ItemModifier).GetField("_mountHitPoints", bindingFlag)?.SetValue(result, (int)mountHitPoints);
+            typeof(ItemModifier).GetField("_mountHitPoints", bindingFlag)?.SetValue(result, (int)mountHitPoints);*/
             return result;
         }
 

@@ -116,7 +116,7 @@ namespace EnhancedBattleTest.UI
             _siegeMaps.Clear();
             foreach (var sceneData in _scenes)
             {
-                MapItemVM mapItemVm = new MapItemVM(sceneData.Name.ToString(), sceneData.Id, OnMapSelection);
+                MapItemVM mapItemVm = new MapItemVM(sceneData.Name.ToString(), sceneData.Id/*, OnMapSelection*/);
                 if (sceneData.IsVillageMap)
                     _villageMaps.Add(mapItemVm);
                 else if (sceneData.IsSiegeMap)
@@ -196,7 +196,7 @@ namespace EnhancedBattleTest.UI
             if (mapSearchResults != null && mapSearchResults.Count > 0)
             {
                 SearchText = "";
-                MapSearchResults[MBRandom.RandomInt(MapSearchResults.Count)].ExecuteSelection();
+                MapSearchResults[MBRandom.RandomInt(MapSearchResults.Count)].ExecuteCommand(null, null);
             }
             SceneLevelSelection.ExecuteRandomize();
             SeasonSelection.ExecuteRandomize();
@@ -209,7 +209,7 @@ namespace EnhancedBattleTest.UI
             // ISSUE: explicit non-virtual call
             if (mapSearchResults != null && mapSearchResults.Count > 0)
             {
-                MapSearchResults[MBRandom.RandomInt(MapSearchResults.Count)].ExecuteSelection();
+                MapSearchResults[MBRandom.RandomInt(MapSearchResults.Count)].ExecuteCommand(null, null);
             }
         }
 

@@ -226,10 +226,10 @@ namespace EnhancedBattleTest.Data.MissionData
                 TimeOfDay = timeOfDay
             }, mission =>
             {
-                List<MissionBehaviour> missionBehaviourList = new List<MissionBehaviour>
+                List<MissionBehavior> missionBehaviourList = new List<MissionBehavior>
                 {
                     new RemoveRetreatOption(),
-                    new CampaignMissionComponent(),
+                    //new CampaignMissionComponent(),
                     new CommanderLogic(config),
                     new BattleSpawnLogic(isSallyOut
                         ? "sally_out_set"
@@ -243,19 +243,19 @@ namespace EnhancedBattleTest.Data.MissionData
                         isPlayerSergeant),
                     new SiegeMissionPreparationHandler(isSallyOut, isReliefForceAttack, wallHitPointPercentages,
                         hasAnySiegeTower),
-                    new MissionAgentSpawnLogic(troopSuppliers, playerSide),
+                    new MissionAgentSpawnLogic(troopSuppliers, playerSide, !isSallyOut ? Mission.BattleSizeType.SallyOut : Mission.BattleSizeType.Siege),
                     new BattleObserverMissionLogic(),
                     new CustomBattleAgentLogic(),
-                    new AgentBattleAILogic(),
+                    //new AgentBattleAILogic(),
                     new AmmoSupplyLogic(new List<BattleSideEnum> {BattleSideEnum.Defender}),
                     new AgentVictoryLogic(),
                     new MissionAgentPanicHandler(),
                     new SiegeMissionController(
-                        attackerSiegeWeapons,
-                        defenderSiegeWeapons,
+                        /*attackerSiegeWeapons,
+                        defenderSiegeWeapons,*/
                         isPlayerAttacker, isSallyOut),
-                    new SiegeDeploymentHandler(isPlayerAttacker,
-                        isPlayerAttacker ? attackerSiegeWeapons : defenderSiegeWeapons),
+                    new SiegeDeploymentHandler(isPlayerAttacker/*,
+                        isPlayerAttacker ? attackerSiegeWeapons : defenderSiegeWeapons*/),
                     new MissionBoundaryPlacer(),
                     new MissionBoundaryCrossingHandler(),
                     new AgentMoraleInteractionLogic(),
@@ -349,10 +349,10 @@ namespace EnhancedBattleTest.Data.MissionData
                 AtmosphereOnCampaign = atmosphereInfo,
                 TimeOfDay = timeOfDay
             }, mission =>
-                new MissionBehaviour[]
+                new MissionBehavior[]
                 {
                     new RemoveRetreatOption(),
-                    new CampaignMissionComponent(),
+                    //new CampaignMissionComponent(),
                     new CommanderLogic(config),
                     new MissionOptionsComponent(),
                     new BattleEndLogic(),
@@ -360,20 +360,20 @@ namespace EnhancedBattleTest.Data.MissionData
                         !isPlayerAttacker ? playerParty : enemyParty,
                         isPlayerAttacker ? playerParty : enemyParty,
                         Mission.MissionTeamAITypeEnum.FieldBattle, isPlayerSergeant),
-                    new MissionDefaultCaptainAssignmentLogic(),
+                    //new MissionDefaultCaptainAssignmentLogic(),
                     new BattleObserverMissionLogic(),
                     new CustomBattleAgentLogic(),
-                    new MissionAgentSpawnLogic(troopSuppliers, playerSide),
+                    new MissionAgentSpawnLogic(troopSuppliers, playerSide, Mission.BattleSizeType.Battle),
                     new EnhancedBattleTestMissionSpawnHandler(!isPlayerAttacker ? playerParty : enemyParty,
                         isPlayerAttacker ? playerParty : enemyParty),
-                    new AgentBattleAILogic(),
+                    //new AgentBattleAILogic(),
                     new AgentVictoryLogic(),
                     new MissionAgentPanicHandler(),
                     new MissionHardBorderPlacer(),
                     new MissionBoundaryPlacer(),
                     new MissionBoundaryCrossingHandler(),
                     new BattleMissionAgentInteractionLogic(),
-                    new FieldBattleController(),
+                    //new FieldBattleController(),
                     new AgentMoraleInteractionLogic(),
                     new AssignPlayerRoleInTeamMissionController(isPlayerGeneral, isPlayerSergeant, hasPlayer,
                         charactersInPlayerSideByPriority?.Select(character => character.StringId).ToList()),

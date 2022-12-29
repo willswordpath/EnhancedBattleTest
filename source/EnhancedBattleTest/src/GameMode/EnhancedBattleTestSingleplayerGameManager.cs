@@ -1,6 +1,9 @@
 ﻿using EnhancedBattleTest.Data;
 using SandBox;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.GameState;
+using TaleWorlds.CampaignSystem.Party;
+using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Engine;
 using TaleWorlds.ModuleManager;
@@ -36,7 +39,7 @@ namespace EnhancedBattleTest.GameMode
                         MBDebug.Print("Initializing new game begin...");
                         var campaign = new Campaign();
                         TaleWorlds.Core.Game.CreateGame(campaign, this);
-                        campaign.SetLoadingParameters(TaleWorlds.CampaignSystem.Campaign.GameLoadingType.NewCampaign, _seed);
+                        campaign.SetLoadingParameters(TaleWorlds.CampaignSystem.Campaign.GameLoadingType.NewCampaign/*, _seed*/);
                         MBDebug.Print("Initializing new game end...");
                     }
                     TaleWorlds.Core.Game.Current.DoLoading();
@@ -92,8 +95,9 @@ namespace EnhancedBattleTest.GameMode
             //gameTextManager.LoadGameTexts(BasePath.Name + "Modules/Native/ModuleData/global_strings.xml");
             //gameTextManager.LoadGameTexts(BasePath.Name + "Modules/Native/ModuleData/module_strings.xml");
             //gameTextManager.LoadGameTexts(BasePath.Name + "Modules/Native/ModuleData/native_strings.xml");
-            gameTextManager.LoadGameTexts(ModuleHelper.GetXmlPath(EnhancedBattleTestSubModule.ModuleId,
-                "module_strings"));
+            //gameTextManager.LoadGameTexts(ModuleHelper.GetXmlPath(EnhancedBattleTestSubModule.ModuleId,
+            //    "module_strings"));
+            gameTextManager.LoadGameTexts();
         }
     }
 }

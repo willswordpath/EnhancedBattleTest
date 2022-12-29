@@ -4,6 +4,7 @@ using EnhancedBattleTest.Data.MissionData;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.AgentOrigins;
 using TaleWorlds.Core;
+using TaleWorlds.Engine;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 
@@ -43,8 +44,9 @@ namespace EnhancedBattleTest.SinglePlayer.Data.MissionData
         {
             BasicCharacterObject troop = Troop;
             var team = IsUnderPlayersCommand ? Mission.Current.PlayerTeam : Mission.Current.PlayerEnemyTeam;
-            MatrixFrame frame = initFrame ?? Mission.Current
-                .GetFormationSpawnFrame(team.Side, FormationClass.NumberOfRegularFormations, false).ToGroundMatrixFrame();
+
+            MatrixFrame frame = initFrame ?? Mission.Current.
+                GetBattleSideInitialSpawnPathFrame(side).ToGroundMatrixFrame();
             if (SPCharacter.IsPlayer && !forceDismounted)
                 spawnWithHorse = true;
             AgentBuildData agentBuildData = new AgentBuildData(this)
@@ -52,10 +54,10 @@ namespace EnhancedBattleTest.SinglePlayer.Data.MissionData
                 .ClothingColor1(team.Color).ClothingColor2(team.Color2)
                 .NoHorses(!spawnWithHorse).CivilianEquipment(Mission.Current.DoesMissionRequireCivilianEquipment);
             agentBuildData.IsFemale(SPCharacter.IsFemale);
-            if (!SPCharacter.IsPlayer)
-                agentBuildData.IsReinforcement(isReinforcement).SpawnOnInitialPoint(enforceSpawningOnInitialPoint);
-            if (!hasFormation || SPCharacter.IsPlayer)
-                agentBuildData.InitialFrame(frame);
+            //if (!SPCharacter.IsPlayer)
+            //    agentBuildData.IsReinforcement(isReinforcement).SpawnOnInitialPoint(enforceSpawningOnInitialPoint);
+            //if (!hasFormation || SPCharacter.IsPlayer)
+            //    agentBuildData.InitialFrame(frame);
             if (spawnWithHorse)
                 agentBuildData.MountKey(MountCreationKey.GetRandomMountKey(
                     troop.Equipment[EquipmentIndex.ArmorItemEndSlot].Item, troop.GetMountKeySeed()).ToString());
@@ -110,10 +112,10 @@ namespace EnhancedBattleTest.SinglePlayer.Data.MissionData
                 AnimationSystemData animationSystemData =
                     agentBuildData.AgentMonster.FillAnimationSystemData(MBGlobals.GetActionSet(specialActionSet),
                         agent.Character.GetStepSize(), false);
-                AgentVisualsNativeData agentVisualsNativeData =
-                    agentBuildData.AgentMonster.FillAgentVisualsNativeData();
-                agentBuildData.AgentMonster.FillAgentVisualsNativeData();
-                agent.SetActionSet(ref agentVisualsNativeData, ref animationSystemData);
+                //AgentVisualsNativeData agentVisualsNativeData =
+                //    agentBuildData.AgentMonster.FillAgentVisualsNativeData();
+                //agentBuildData.AgentMonster.FillAgentVisualsNativeData();
+                agent.SetActionSet(/*ref agentVisualsNativeData, */ref animationSystemData);
             }
             return agent;
         }

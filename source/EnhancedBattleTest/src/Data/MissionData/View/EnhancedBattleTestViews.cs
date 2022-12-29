@@ -3,7 +3,6 @@ using EnhancedBattleTest.UI.MissionUI;
 using SandBox.View.Missions;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.MountAndBlade.View;
-using TaleWorlds.MountAndBlade.View.Missions;
 using TaleWorlds.MountAndBlade.View.MissionViews;
 using TaleWorlds.MountAndBlade.View.MissionViews.Order;
 using TaleWorlds.MountAndBlade.View.MissionViews.Singleplayer;
@@ -25,7 +24,7 @@ namespace EnhancedBattleTest.Data.MissionData.View
                 ViewCreator.CreateOptionsUIHandler(),
                 ViewCreator.CreateMissionOrderUIHandler(),
                 new OrderTroopPlacer(),
-                new MissionSingleplayerUIHandler(),
+                //new MissionSingleplayerUIHandler(),
                 ViewCreator.CreateMissionAgentStatusUIHandler(mission),
                 ViewCreator.CreateMissionMainAgentEquipmentController(mission),
                 ViewCreator.CreateMissionMainAgentCheerBarkControllerView(mission),
@@ -35,7 +34,7 @@ namespace EnhancedBattleTest.Data.MissionData.View
                 ViewCreator.CreateMissionFormationMarkerUIHandler(mission),
                 ViewCreator.CreateSingleplayerMissionKillNotificationUIHandler(),
                 ViewCreator.CreateMissionSpectatorControlView(mission),
-                ViewCreator.CreatePlayerRoleSelectionUIHandler(),
+                //ViewCreator.CreatePlayerRoleSelectionUIHandler(),
                 ViewCreator.CreatePhotoModeView(),
                 new MissionItemContourControllerView(),
                 new MissionAgentContourControllerView(),
@@ -55,21 +54,21 @@ namespace EnhancedBattleTest.Data.MissionData.View
                 ViewCreator.CreateOptionsUIHandler(),
                 missionOrderUiHandler,
                 new OrderTroopPlacer(),
-                new MissionSingleplayerUIHandler(),
+                //new MissionSingleplayerUIHandler(),
                 ViewCreator.CreateMissionAgentStatusUIHandler(mission),
                 ViewCreator.CreateMissionMainAgentEquipmentController(mission),
                 ViewCreator.CreateMissionMainAgentCheerBarkControllerView(mission),
                 new MusicBattleMissionView(true),
-                new SiegeMissionView(),
+                //new SiegeMissionView(),
                 new MissionEntitySelectionUIHandler(siegeDeploymentView.OnEntitySelection,
                     siegeDeploymentView.OnEntityHover),
                 ViewCreator.CreateMissionBoundaryCrossingView(),
                 ViewCreator.CreateSingleplayerMissionKillNotificationUIHandler(),
-                new MissionBoundaryMarker(new FlagFactory("swallowtail_banner")),
+                //new MissionBoundaryMarker(new FlagFactory("swallowtail_banner")),
                 ViewCreator.CreateMissionFormationMarkerUIHandler(mission),
                 ViewCreator.CreateMissionSpectatorControlView(mission),
                 new SiegeDeploymentVisualizationMissionView(),
-                ViewCreator.CreatePlayerRoleSelectionUIHandler(),
+                //ViewCreator.CreatePlayerRoleSelectionUIHandler(),
                 ViewCreator.CreatePhotoModeView(),
                 new MissionItemContourControllerView(),
                 new MissionAgentContourControllerView(),

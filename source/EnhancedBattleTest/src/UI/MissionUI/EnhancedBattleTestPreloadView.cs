@@ -2,13 +2,14 @@
 using EnhancedBattleTest.Data.MissionData;
 using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
+using TaleWorlds.MountAndBlade.View;
 using TaleWorlds.MountAndBlade.View.MissionViews;
 
 namespace EnhancedBattleTest.UI.MissionUI
 {
     class EnhancedBattleTestPreloadView : MissionView
     {
-        private readonly MissionPreloadHelper _helperInstance = new MissionPreloadHelper();
+        private readonly PreloadHelper _helperInstance = new PreloadHelper();
         private bool _preloadDone;
         public override void OnPreMissionTick(float dt)
         {

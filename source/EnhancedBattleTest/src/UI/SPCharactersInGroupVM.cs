@@ -42,8 +42,8 @@ namespace EnhancedBattleTest.UI
                         case Occupation.GoodsTrader:
                         case Occupation.BannerBearer:
                             return new TextObject(occupation.ToString());
-                        case Occupation.Outlaw:
-                            return GameTexts.FindText("str_outlaw");
+                        //case Occupation.Outlaw:
+                        //    return GameTexts.FindText("str_outlaw");
                         case Occupation.RuralNotable:
                             return GameTexts.FindText("str_rural_notable");
                         case Occupation.Artisan:
@@ -51,8 +51,8 @@ namespace EnhancedBattleTest.UI
                         case Occupation.Headman:
                         case Occupation.GangLeader:
                             return GameTexts.FindText("str_charactertype_" + occupation.ToString().ToLower());
-                        case Occupation.Judge:
-                            return new TextObject("{=ZRkceJx3}Judge");
+                        //case Occupation.Judge:
+                        //    return new TextObject("{=ZRkceJx3}Judge");
                         case Occupation.CaravanGuard:
                             return new TextObject("{=jxNe8lH2}Caravan Guard");
                     }

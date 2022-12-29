@@ -40,15 +40,16 @@ namespace EnhancedBattleTest.Data.MissionData.Logic
             int attackerInitialSpawn = (int)Math.Floor(ofHealthyMembers2 * 0.1f);
             _missionAgentSpawnLogic.SetSpawnHorses(BattleSideEnum.Defender, true);
             _missionAgentSpawnLogic.SetSpawnHorses(BattleSideEnum.Attacker, true);
-            _missionAgentSpawnLogic.InitWithSinglePhase(ofHealthyMembers1, ofHealthyMembers2, defenderInitialSpawn, attackerInitialSpawn, false, false);
-            _missionAgentSpawnLogic.ReserveReinforcement(BattleSideEnum.Attacker, ofHealthyMembers2 - attackerInitialSpawn);
+            _missionAgentSpawnLogic.InitWithSinglePhase(ofHealthyMembers1, ofHealthyMembers2, defenderInitialSpawn, attackerInitialSpawn, false, false, 
+                new MissionSpawnSettings());
+            //_missionAgentSpawnLogic.ReserveReinforcement(BattleSideEnum.Attacker, ofHealthyMembers2 - attackerInitialSpawn);
         }
 
         public override void OnMissionTick(float dt)
         {
             if (!CheckTimer(dt))
                 return;
-            _missionAgentSpawnLogic.CheckReinforcement(Math.Max(Math.Floor(_battleCombatants[1].NumberOfHealthyMembers * 0.07f), 5));
+            //_missionAgentSpawnLogic.CheckReinforcement(Math.Max(Math.Floor(_battleCombatants[1].NumberOfHealthyMembers * 0.07f), 5));
         }
 
         private bool CheckTimer(float dt)

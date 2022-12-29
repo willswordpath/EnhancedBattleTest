@@ -66,6 +66,9 @@
     <Reference Include="TaleWorlds.Engine.GauntletUI">
       <HintPath>libs\TaleWorlds.Engine.GauntletUI.dll</HintPath>
     </Reference>
+    <Reference Include="TaleWorlds.GauntletUI.Data">
+      <HintPath>libs\TaleWorlds.GauntletUI.Data.dll</HintPath>
+    </Reference>
     <Reference Include="TaleWorlds.InputSystem">
       <HintPath>libs\TaleWorlds.InputSystem.dll</HintPath>
     </Reference>
@@ -84,6 +87,9 @@
     <Reference Include="TaleWorlds.MountAndBlade.CustomBattle">
       <HintPath>libs\TaleWorlds.MountAndBlade.CustomBattle.dll</HintPath>
     </Reference>
+    <Reference Include="TaleWorlds.MountAndBlade.Diamond">
+      <HintPath>libs\TaleWorlds.MountAndBlade.Diamond.dll</HintPath>
+    </Reference>
     <Reference Include="TaleWorlds.MountAndBlade.GauntletUI">
       <HintPath>libs\TaleWorlds.MountAndBlade.GauntletUI.dll</HintPath>
     </Reference>
@@ -101,6 +107,9 @@
     </Reference>
     <Reference Include="TaleWorlds.ObjectSystem">
       <HintPath>libs\TaleWorlds.ObjectSystem.dll</HintPath>
+    </Reference>
+    <Reference Include="TaleWorlds.PlayerServices">
+      <HintPath>libs\TaleWorlds.PlayerServices.dll</HintPath>
     </Reference>
     <Reference Include="TaleWorlds.ScreenSystem">
       <HintPath>libs\TaleWorlds.ScreenSystem.dll</HintPath>

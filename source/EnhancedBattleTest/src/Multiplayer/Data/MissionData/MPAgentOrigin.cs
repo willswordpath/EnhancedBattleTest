@@ -28,7 +28,7 @@ namespace EnhancedBattleTest.Multiplayer.Data.MissionData
             BasicCharacterObject troop = Troop;
             var team = IsUnderPlayersCommand ? Mission.Current.PlayerTeam : Mission.Current.PlayerEnemyTeam;
             MatrixFrame frame = initFrame ?? Mission.Current
-                .GetFormationSpawnFrame(team.Side, FormationClass.NumberOfRegularFormations, false).ToGroundMatrixFrame();
+                .GetBattleSideInitialSpawnPathFrame(team.Side/*, FormationClass.NumberOfRegularFormations, false*/).ToGroundMatrixFrame();
             if (MPCharacter.IsPlayer && !forceDismounted)
                 spawnWithHorse = true;
             AgentBuildData agentBuildData = new AgentBuildData(this).Team(team).Banner(Banner)
@@ -40,10 +40,10 @@ namespace EnhancedBattleTest.Multiplayer.Data.MissionData
                 MPCharacter.IsHero, Seed);
             agentBuildData.Equipment(equipment);
             agentBuildData.IsFemale(MPCharacter.IsFemale);
-            if (!MPCharacter.IsPlayer)
-                agentBuildData.IsReinforcement(isReinforcement).SpawnOnInitialPoint(enforceSpawningOnInitialPoint);
-            if (!hasFormation || MPCharacter.IsPlayer)
-                agentBuildData.InitialFrame(frame);
+            //if (!MPCharacter.IsPlayer)
+            //    agentBuildData.IsReinforcement(isReinforcement).SpawnOnInitialPoint(enforceSpawningOnInitialPoint);
+            //if (!hasFormation || MPCharacter.IsPlayer)
+            //    agentBuildData.InitialFrame(frame);
             if (spawnWithHorse)
                 agentBuildData.MountKey(MountCreationKey.GetRandomMountKey(
                     troop.Equipment[EquipmentIndex.ArmorItemEndSlot].Item, troop.GetMountKeySeed()).ToString());
@@ -65,10 +65,10 @@ namespace EnhancedBattleTest.Multiplayer.Data.MissionData
                 AnimationSystemData animationSystemData =
                     agentBuildData.AgentMonster.FillAnimationSystemData(MBGlobals.GetActionSet(specialActionSet),
                         agent.Character.GetStepSize(), false);
-                AgentVisualsNativeData agentVisualsNativeData =
-                    agentBuildData.AgentMonster.FillAgentVisualsNativeData();
-                agentBuildData.AgentMonster.FillAgentVisualsNativeData();
-                agent.SetActionSet(ref agentVisualsNativeData, ref animationSystemData);
+                //AgentVisualsNativeData agentVisualsNativeData =
+                //    agentBuildData.AgentMonster.FillAgentVisualsNativeData();
+                //agentBuildData.AgentMonster.FillAgentVisualsNativeData();
+                agent.SetActionSet(/*ref agentVisualsNativeData, */ref animationSystemData);
             }
             return agent;
         }

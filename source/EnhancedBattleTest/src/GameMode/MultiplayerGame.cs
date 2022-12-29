@@ -2,8 +2,6 @@
 using System.IO;
 using EnhancedBattleTest.Data;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
-using TaleWorlds.CampaignSystem.Map;
-using TaleWorlds.CampaignSystem.SandBox.GameComponents.Map;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
@@ -18,25 +16,25 @@ namespace EnhancedBattleTest.GameMode
         protected override void OnInitialize()
         {
             TaleWorlds.Core.Game currentGame = this.CurrentGame;
-            currentGame.FirstInitialize(false);
+            currentGame.Initialize();
             InitializeGameTexts(currentGame.GameTextManager);
             IGameStarter gameStarter = new BasicGameStarter();
             InitializeGameModels(gameStarter);
             GameManager.OnGameStart(currentGame, gameStarter);
             MBObjectManager objectManager = currentGame.ObjectManager;
-            currentGame.SecondInitialize(gameStarter.Models);
+            //currentGame.SecondInitialize(gameStarter.Models);
             currentGame.CreateGameManager();
             GameManager.BeginGameStart(currentGame);
-            currentGame.ThirdInitialize();
+            //currentGame.ThirdInitialize();
             currentGame.InitializeDefaultGameObjects();
-            currentGame.LoadBasicFiles(false);
+            currentGame.LoadBasicFiles();
             LoadXmls();
-            objectManager.ClearEmptyObjects();
-            currentGame.SetDefaultEquipments((IReadOnlyDictionary<string, Equipment>)new Dictionary<string, Equipment>());
+            //objectManager.ClearEmptyObjects();
+            currentGame.SetDefaultEquipments(new Dictionary<string, Equipment>());
             ObjectManager.LoadXML("MPClassDivisions");
-            objectManager.ClearEmptyObjects();
+            //objectManager.ClearEmptyObjects();
             MultiplayerClassDivisions.Initialize();
-            GameManager.OnCampaignStart(this.CurrentGame, (object)null);
+            GameManager.OnNewCampaignStart(this.CurrentGame, (object)null);
             GameManager.OnAfterCampaignStart(this.CurrentGame);
             GameManager.OnGameInitializationFinished(this.CurrentGame);
             CurrentGame.AddGameHandler<ChatBox>();
@@ -55,10 +53,10 @@ namespace EnhancedBattleTest.GameMode
 
         private void InitializeGameModels(IGameStarter gameStarter)
         {
-            gameStarter.AddModel(new MultiplayerAgentDecideKilledOrUnconsciousModel());
+            //gameStarter.AddModel(new MultiplayerAgentDecideKilledOrUnconsciousModel());
             gameStarter.AddModel(new MultiplayerAgentStatCalculateModel());
             gameStarter.AddModel(new MultiplayerApplyWeatherEffectsModel());
-            gameStarter.AddModel(new MultiplayerAgentApplyDamageModel());
+            //gameStarter.AddModel(new MultiplayerAgentApplyDamageModel());
             gameStarter.AddModel(new DefaultRidingModel());
             gameStarter.AddModel(new MultiplayerStrikeMagnitudeModel());
             gameStarter.AddModel(new MultiplayerBattleMoraleModel());
@@ -73,7 +71,7 @@ namespace EnhancedBattleTest.GameMode
 
         protected override void BeforeRegisterTypes(MBObjectManager objectManager)
         {
-            objectManager.RegisterNonSerializedType<FeatObject>("Feat", "Feats", 0U, true);
+            objectManager.RegisterType<FeatObject>("Feat", "Feats", 0U, true);
         }
 
         protected override void OnRegisterTypes(MBObjectManager objectManager)
