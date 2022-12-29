@@ -38,15 +38,18 @@ namespace EnhancedBattleTest.SinglePlayer.Data.MissionData
         }
 
         public override Agent SpawnTroop(BattleSideEnum side, bool hasFormation, bool spawnWithHorse, bool isReinforcement,
-            bool enforceSpawningOnInitialPoint, int formationTroopCount, int formationTroopIndex, bool isAlarmed,
+            /*bool enforceSpawningOnInitialPoint,*/ int formationTroopCount, int formationTroopIndex, bool isAlarmed,
             bool wieldInitialWeapons, bool forceDismounted = false, string specialActionSet = null,
             MatrixFrame? initFrame = null)
         {
             BasicCharacterObject troop = Troop;
             var team = IsUnderPlayersCommand ? Mission.Current.PlayerTeam : Mission.Current.PlayerEnemyTeam;
 
-            MatrixFrame frame = initFrame ?? Mission.Current.
-                GetBattleSideInitialSpawnPathFrame(side).ToGroundMatrixFrame();
+            WorldPosition spawnPosition;
+            Vec2 spawnDirection;
+
+            Mission.Current.GetFormationSpawnFrame(side, FormationClass.NumberOfRegularFormations, false, out spawnPosition, out spawnDirection);
+
             if (SPCharacter.IsPlayer && !forceDismounted)
                 spawnWithHorse = true;
             AgentBuildData agentBuildData = new AgentBuildData(this)
@@ -56,8 +59,11 @@ namespace EnhancedBattleTest.SinglePlayer.Data.MissionData
             agentBuildData.IsFemale(SPCharacter.IsFemale);
             //if (!SPCharacter.IsPlayer)
             //    agentBuildData.IsReinforcement(isReinforcement).SpawnOnInitialPoint(enforceSpawningOnInitialPoint);
-            //if (!hasFormation || SPCharacter.IsPlayer)
-            //    agentBuildData.InitialFrame(frame);
+            if (!hasFormation || SPCharacter.IsPlayer)
+            {
+                agentBuildData.InitialDirection(spawnDirection);
+                agentBuildData.InitialPosition(spawnPosition.GetGroundVec3());
+            }
             if (spawnWithHorse)
                 agentBuildData.MountKey(MountCreationKey.GetRandomMountKey(
                     troop.Equipment[EquipmentIndex.ArmorItemEndSlot].Item, troop.GetMountKeySeed()).ToString());

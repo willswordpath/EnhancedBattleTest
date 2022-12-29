@@ -196,7 +196,7 @@ namespace EnhancedBattleTest.UI
             if (mapSearchResults != null && mapSearchResults.Count > 0)
             {
                 SearchText = "";
-                MapSearchResults[MBRandom.RandomInt(MapSearchResults.Count)].ExecuteCommand(null, null);
+                SelectedMap = MapSearchResults[MBRandom.RandomInt(MapSearchResults.Count)];
             }
             SceneLevelSelection.ExecuteRandomize();
             SeasonSelection.ExecuteRandomize();
@@ -209,7 +209,7 @@ namespace EnhancedBattleTest.UI
             // ISSUE: explicit non-virtual call
             if (mapSearchResults != null && mapSearchResults.Count > 0)
             {
-                MapSearchResults[MBRandom.RandomInt(MapSearchResults.Count)].ExecuteCommand(null, null);
+                SelectedMap = MapSearchResults[MBRandom.RandomInt(MapSearchResults.Count)];
             }
         }
 

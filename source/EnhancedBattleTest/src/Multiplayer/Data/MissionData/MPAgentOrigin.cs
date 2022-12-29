@@ -1,6 +1,8 @@
 ﻿using EnhancedBattleTest.Data;
 using EnhancedBattleTest.Data.MissionData;
+using EnhancedBattleTest.SinglePlayer.Data;
 using TaleWorlds.Core;
+using TaleWorlds.Engine;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 
@@ -21,14 +23,18 @@ namespace EnhancedBattleTest.Multiplayer.Data.MissionData
         }
 
         public override Agent SpawnTroop(BattleSideEnum side, bool hasFormation, bool spawnWithHorse, bool isReinforcement,
-            bool enforceSpawningOnInitialPoint, int formationTroopCount, int formationTroopIndex, bool isAlarmed,
+            /*bool enforceSpawningOnInitialPoint,*/ int formationTroopCount, int formationTroopIndex, bool isAlarmed,
             bool wieldInitialWeapons, bool forceDismounted = false, string specialActionSet = null,
             MatrixFrame? initFrame = null)
         {
             BasicCharacterObject troop = Troop;
             var team = IsUnderPlayersCommand ? Mission.Current.PlayerTeam : Mission.Current.PlayerEnemyTeam;
-            MatrixFrame frame = initFrame ?? Mission.Current
-                .GetBattleSideInitialSpawnPathFrame(team.Side/*, FormationClass.NumberOfRegularFormations, false*/).ToGroundMatrixFrame();
+            
+            WorldPosition spawnPosition;
+            Vec2 spawnDirection;
+
+            Mission.Current.GetFormationSpawnFrame(side, FormationClass.NumberOfRegularFormations, false, out spawnPosition, out spawnDirection);
+
             if (MPCharacter.IsPlayer && !forceDismounted)
                 spawnWithHorse = true;
             AgentBuildData agentBuildData = new AgentBuildData(this).Team(team).Banner(Banner)
@@ -42,8 +48,11 @@ namespace EnhancedBattleTest.Multiplayer.Data.MissionData
             agentBuildData.IsFemale(MPCharacter.IsFemale);
             //if (!MPCharacter.IsPlayer)
             //    agentBuildData.IsReinforcement(isReinforcement).SpawnOnInitialPoint(enforceSpawningOnInitialPoint);
-            //if (!hasFormation || MPCharacter.IsPlayer)
-            //    agentBuildData.InitialFrame(frame);
+            if (!hasFormation || MPCharacter.IsPlayer)
+            {
+                agentBuildData.InitialDirection(spawnDirection);
+                agentBuildData.InitialPosition(spawnPosition.GetGroundVec3());
+            }
             if (spawnWithHorse)
                 agentBuildData.MountKey(MountCreationKey.GetRandomMountKey(
                     troop.Equipment[EquipmentIndex.ArmorItemEndSlot].Item, troop.GetMountKeySeed()).ToString());

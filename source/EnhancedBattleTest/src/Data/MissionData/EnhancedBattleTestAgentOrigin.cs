@@ -80,7 +80,7 @@ namespace EnhancedBattleTest.Data.MissionData
             bool hasFormation,
             bool spawnWithHorse,
             bool isReinforcement,
-            bool enforceSpawningOnInitialPoint,
+            /*bool enforceSpawningOnInitialPoint,*/
             int formationTroopCount,
             int formationTroopIndex,
             bool isAlarmed,
