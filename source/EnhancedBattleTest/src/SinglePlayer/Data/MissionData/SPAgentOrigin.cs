@@ -2,6 +2,7 @@
 using EnhancedBattleTest.Data;
 using EnhancedBattleTest.Data.MissionData;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.AgentOrigins;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;

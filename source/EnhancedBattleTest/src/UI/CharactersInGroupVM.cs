@@ -5,6 +5,7 @@ using EnhancedBattleTest.Data;
 using EnhancedBattleTest.UI.Basic;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection;
+using TaleWorlds.Core.ViewModelCollection.Selector;
 using TaleWorlds.Library;
 
 namespace EnhancedBattleTest.UI

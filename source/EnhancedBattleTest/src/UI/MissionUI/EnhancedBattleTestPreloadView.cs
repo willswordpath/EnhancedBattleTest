@@ -2,7 +2,7 @@
 using EnhancedBattleTest.Data.MissionData;
 using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
-using TaleWorlds.MountAndBlade.View.Missions;
+using TaleWorlds.MountAndBlade.View.MissionViews;
 
 namespace EnhancedBattleTest.UI.MissionUI
 {
@@ -14,7 +14,7 @@ namespace EnhancedBattleTest.UI.MissionUI
         {
             if (_preloadDone)
                 return;
-            MissionCombatantsLogic missionBehaviour = Mission.GetMissionBehaviour<MissionCombatantsLogic>();
+            MissionCombatantsLogic missionBehaviour = Mission.GetMissionBehavior<MissionCombatantsLogic>();
             List<BasicCharacterObject> characters = new List<BasicCharacterObject>();
             foreach (IBattleCombatant allCombatant in missionBehaviour.GetAllCombatants())
                 characters.AddRange(((IEnhancedBattleTestCombatant)allCombatant).Characters);

@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using EnhancedBattleTest.Data;
-using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.CharacterDevelopment;
+using TaleWorlds.CampaignSystem.Map;
 using TaleWorlds.CampaignSystem.SandBox.GameComponents.Map;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
@@ -43,12 +44,13 @@ namespace EnhancedBattleTest.GameMode
 
         private void InitializeGameTexts(GameTextManager currentGameGameTextManager)
         {
-            currentGameGameTextManager.LoadGameTexts(BasePath.Name + "Modules/Native/ModuleData/multiplayer_strings.xml");
-            currentGameGameTextManager.LoadGameTexts(BasePath.Name + "Modules/Native/ModuleData/global_strings.xml");
-            currentGameGameTextManager.LoadGameTexts(BasePath.Name + "Modules/Native/ModuleData/module_strings.xml");
-            currentGameGameTextManager.LoadGameTexts(BasePath.Name + "Modules/Native/ModuleData/native_strings.xml");
-            currentGameGameTextManager.LoadGameTexts(Path.Combine(EnhancedBattleTestSubModule.ModuleFolderPath, "ModuleData",
-                "module_strings.xml"));
+            currentGameGameTextManager.LoadGameTexts();
+            //currentGameGameTextManager.LoadGameTexts(BasePath.Name + "Modules/Native/ModuleData/multiplayer_strings.xml");
+            //currentGameGameTextManager.LoadGameTexts(BasePath.Name + "Modules/Native/ModuleData/global_strings.xml");
+            //currentGameGameTextManager.LoadGameTexts(BasePath.Name + "Modules/Native/ModuleData/module_strings.xml");
+            //currentGameGameTextManager.LoadGameTexts(BasePath.Name + "Modules/Native/ModuleData/native_strings.xml");
+            //currentGameGameTextManager.LoadGameTexts(Path.Combine(EnhancedBattleTestSubModule.ModuleFolderPath, "ModuleData",
+            //    "module_strings.xml"));
         }
 
         private void InitializeGameModels(IGameStarter gameStarter)

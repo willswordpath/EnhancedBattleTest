@@ -5,6 +5,7 @@ using TaleWorlds.Engine.Screens;
 using TaleWorlds.GauntletUI.Data;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
+using TaleWorlds.ScreenSystem;
 
 namespace EnhancedBattleTest.UI
 {
@@ -57,7 +58,7 @@ namespace EnhancedBattleTest.UI
             if (!_isLastActiveGameStatePaused)
                 return;
             _isLastActiveGameStateActive = GameStateManager.Current.ActiveStateDisabledByUser;
-            GameStateManager.Current.ActiveStateDisabledByUser = true;
+            //GameStateManager.Current.ActiveStateDisabledByUser = true;
             MBCommon.PauseGameEngine();
         }
 

@@ -2,9 +2,12 @@
 using EnhancedBattleTest.UI.MissionUI;
 using SandBox.View.Missions;
 using TaleWorlds.MountAndBlade;
-using TaleWorlds.MountAndBlade.LegacyGUI.Missions;
 using TaleWorlds.MountAndBlade.View;
 using TaleWorlds.MountAndBlade.View.Missions;
+using TaleWorlds.MountAndBlade.View.MissionViews;
+using TaleWorlds.MountAndBlade.View.MissionViews.Order;
+using TaleWorlds.MountAndBlade.View.MissionViews.Singleplayer;
+using TaleWorlds.MountAndBlade.View.MissionViews.Sound;
 
 namespace EnhancedBattleTest.Data.MissionData.View
 {

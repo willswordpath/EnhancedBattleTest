@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using EnhancedBattleTest.Config;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
