@@ -1,6 +1,5 @@
 ﻿using EnhancedBattleTest.Data;
 using EnhancedBattleTest.Data.MissionData;
-using EnhancedBattleTest.SinglePlayer.Data;
 using TaleWorlds.Core;
 using TaleWorlds.Engine;
 using TaleWorlds.Library;
@@ -22,19 +21,19 @@ namespace EnhancedBattleTest.Multiplayer.Data.MissionData
             MPCharacter = character;
         }
 
-        public override Agent SpawnTroop(BattleSideEnum side, bool hasFormation, bool spawnWithHorse, bool isReinforcement,
-            /*bool enforceSpawningOnInitialPoint,*/ int formationTroopCount, int formationTroopIndex, bool isAlarmed,
-            bool wieldInitialWeapons, bool forceDismounted = false, string specialActionSet = null,
-            MatrixFrame? initFrame = null)
+        public override Agent SpawnTroop(BattleSideEnum side, bool hasFormation, bool spawnWithHorse,
+            bool isReinforcement,
+            bool enforceSpawningOnInitialPoint, int formationTroopCount, int formationTroopIndex, bool isAlarmed,
+            bool wieldInitialWeapons, bool forceDismounted,
+            Vec3? initialPosition,
+            Vec2? initialDirection, string specialActionSet = null)
         {
             BasicCharacterObject troop = Troop;
             var team = IsUnderPlayersCommand ? Mission.Current.PlayerTeam : Mission.Current.PlayerEnemyTeam;
-            
-            WorldPosition spawnPosition;
-            Vec2 spawnDirection;
-
-            Mission.Current.GetFormationSpawnFrame(side, FormationClass.NumberOfRegularFormations, false, out spawnPosition, out spawnDirection);
-
+            Mission.Current
+                .GetFormationSpawnFrame(team.Side, FormationClass.NumberOfRegularFormations, isReinforcement,
+                    out var formationPosition,
+                    out var formationDirection);
             if (MPCharacter.IsPlayer && !forceDismounted)
                 spawnWithHorse = true;
             AgentBuildData agentBuildData = new AgentBuildData(this).Team(team).Banner(Banner)
@@ -47,16 +46,30 @@ namespace EnhancedBattleTest.Multiplayer.Data.MissionData
             agentBuildData.Equipment(equipment);
             agentBuildData.IsFemale(MPCharacter.IsFemale);
             //if (!MPCharacter.IsPlayer)
-            //    agentBuildData.IsReinforcement(isReinforcement).SpawnOnInitialPoint(enforceSpawningOnInitialPoint);
-            if (!hasFormation || MPCharacter.IsPlayer)
+                //agentBuildData.IsReinforcement(isReinforcement).SpawnOnInitialPoint(enforceSpawningOnInitialPoint);
+            if (initialPosition.HasValue && initialDirection.HasValue)
             {
-                agentBuildData.InitialDirection(spawnDirection);
-                agentBuildData.InitialPosition(spawnPosition.GetGroundVec3());
+                Vec3 vec3 = initialPosition.Value;
+                agentBuildData.InitialPosition(in vec3);
+                Vec2 vec2 = initialDirection.Value;
+                agentBuildData.InitialDirection(in vec2);
+            }
+            else if (SpawnableCharacter.IsGeneral && Mission.Current.GetFormationSpawnClass(team.Side, FormationClass.NumberOfRegularFormations, isReinforcement) == FormationClass.NumberOfRegularFormations)
+            {
+                Mission.Current.GetFormationSpawnFrame(team.Side, FormationClass.NumberOfRegularFormations, false, out var spawnPosition, out var direction);
+                Vec3 groundVec3 = spawnPosition.GetGroundVec3();
+                agentBuildData.InitialPosition(in groundVec3).InitialDirection(in direction);
+            }
+            else if (!hasFormation)
+            {
+                Mission.Current.GetFormationSpawnFrame(team.Side, FormationClass.NumberOfAllFormations, false, out var spawnPosition, out var direction);
+                Vec3 groundVec3 = spawnPosition.GetGroundVec3();
+                agentBuildData.InitialPosition(in groundVec3).InitialDirection(in direction);
             }
             if (spawnWithHorse)
                 agentBuildData.MountKey(MountCreationKey.GetRandomMountKey(
                     troop.Equipment[EquipmentIndex.ArmorItemEndSlot].Item, troop.GetMountKeySeed()).ToString());
-            if (hasFormation && !MPCharacter.IsPlayer)
+            if (hasFormation)
             {
                 Formation formation = team.GetFormation(MPCharacter.FormationIndex);
                 agentBuildData.Formation(formation);
@@ -69,16 +82,16 @@ namespace EnhancedBattleTest.Multiplayer.Data.MissionData
                 agent.SetWatchState(Agent.WatchState.Alarmed);
             if (wieldInitialWeapons)
                 agent.WieldInitialWeapons();
-            if (!string.IsNullOrEmpty(specialActionSet))
-            {
-                AnimationSystemData animationSystemData =
-                    agentBuildData.AgentMonster.FillAnimationSystemData(MBGlobals.GetActionSet(specialActionSet),
-                        agent.Character.GetStepSize(), false);
-                //AgentVisualsNativeData agentVisualsNativeData =
-                //    agentBuildData.AgentMonster.FillAgentVisualsNativeData();
-                //agentBuildData.AgentMonster.FillAgentVisualsNativeData();
-                agent.SetActionSet(/*ref agentVisualsNativeData, */ref animationSystemData);
-            }
+            //if (!string.IsNullOrEmpty(specialActionSet))
+            //{
+            //    AnimationSystemData animationSystemData =
+            //        agentBuildData.AgentMonster.FillAnimationSystemData(MBGlobals.GetActionSet(specialActionSet),
+            //            agent.Character.GetStepSize(), false);
+            //    AgentVisualsNativeData agentVisualsNativeData =
+            //        agentBuildData.AgentMonster.FillAgentVisualsNativeData();
+            //    agentBuildData.AgentMonster.FillAgentVisualsNativeData();
+            //    agent.SetActionSet(ref agentVisualsNativeData, ref animationSystemData);
+            //}
             return agent;
         }
     }

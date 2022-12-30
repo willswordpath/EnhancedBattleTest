@@ -1,10 +1,8 @@
-﻿using System;
+﻿using SandBox.GauntletUI.BannerEditor;
+using System;
 using System.Reflection;
-using SandBox.GauntletUI;
-using SandBox.GauntletUI.BannerEditor;
 using TaleWorlds.Core;
 using TaleWorlds.Engine;
-using TaleWorlds.Engine.Screens;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
@@ -79,7 +77,7 @@ namespace EnhancedBattleTest.BannerEditor
             base.OnInitialize();
 
             _oldGameStateManagerDisabledStatus = TaleWorlds.Core.Game.Current.GameStateManager.ActiveStateDisabledByUser;
-            //Game.Current.GameStateManager.ActiveStateDisabledByUser = true;
+            TaleWorlds.Core.Game.Current.GameStateManager.RegisterActiveStateDisableRequest(this);
         }
 
         protected override void OnFinalize()
@@ -89,7 +87,7 @@ namespace EnhancedBattleTest.BannerEditor
             _bannerEditorLayer.OnFinalize();
             if (LoadingWindow.GetGlobalLoadingWindowState())
                 LoadingWindow.DisableGlobalLoadingWindow();
-            //TaleWorlds.Core.Game.Current.GameStateManager.ActiveStateDisabledByUser = _oldGameStateManagerDisabledStatus;
+            TaleWorlds.Core.Game.Current.GameStateManager.UnregisterActiveStateDisableRequest(this);
         }
 
         protected override void OnActivate()

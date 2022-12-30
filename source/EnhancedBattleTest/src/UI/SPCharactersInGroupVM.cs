@@ -1,13 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using EnhancedBattleTest.Config;
+﻿using EnhancedBattleTest.Config;
 using EnhancedBattleTest.Data;
 using EnhancedBattleTest.SinglePlayer.Config;
 using EnhancedBattleTest.SinglePlayer.Data;
 using EnhancedBattleTest.UI.Basic;
+using System.Collections.Generic;
+using System.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
-using TaleWorlds.Core.ViewModelCollection;
 using TaleWorlds.Core.ViewModelCollection.Selector;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
@@ -40,21 +39,20 @@ namespace EnhancedBattleTest.UI
                     switch (occupation)
                     {
                         case Occupation.GoodsTrader:
-                        case Occupation.BannerBearer:
-                            return new TextObject(occupation.ToString());
+                            return new TextObject("{=thbcgVVO}Trader");
                         //case Occupation.Outlaw:
                         //    return GameTexts.FindText("str_outlaw");
-                        case Occupation.RuralNotable:
-                            return GameTexts.FindText("str_rural_notable");
                         case Occupation.Artisan:
                         case Occupation.Preacher:
                         case Occupation.Headman:
                         case Occupation.GangLeader:
+                        case Occupation.RuralNotable:
                             return GameTexts.FindText("str_charactertype_" + occupation.ToString().ToLower());
                         //case Occupation.Judge:
                         //    return new TextObject("{=ZRkceJx3}Judge");
                         case Occupation.CaravanGuard:
-                            return new TextObject("{=jxNe8lH2}Caravan Guard");
+                        case Occupation.BannerBearer:
+                            return new TextObject(occupation.ToString());
                     }
                     return GameTexts.FindText("str_occupation", occupation.ToString());
                 }))
@@ -79,7 +77,7 @@ namespace EnhancedBattleTest.UI
             if (spConfig == null)
                 return;
             Occupations.SelectedIndex = -1;
-            Occupations.SelectedIndex = (int)spConfig.ActualCharacterObject.Occupation + 1;
+            Occupations.SelectedIndex = (int)spConfig.ActualCharacterObject.Occupation;
         }
 
         private void OnSelectedOccupationChanged(SelectorVM<SelectorItemVM> obj)
@@ -122,7 +120,7 @@ namespace EnhancedBattleTest.UI
 
         private Occupation CurrentOccupation()
         {
-            return (Occupation)Occupations.SelectedIndex - 1;
+            return (Occupation)Occupations.SelectedIndex;
         }
 
         private IEnumerable<Character> GetCharactersInGroup(Group group)

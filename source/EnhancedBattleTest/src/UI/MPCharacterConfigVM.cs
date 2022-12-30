@@ -1,9 +1,9 @@
-﻿using System.Linq;
-using EnhancedBattleTest.Config;
+﻿using EnhancedBattleTest.Config;
 using EnhancedBattleTest.Data;
 using EnhancedBattleTest.Multiplayer.Config;
 using EnhancedBattleTest.Multiplayer.Data;
 using EnhancedBattleTest.UI.Basic;
+using System.Linq;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection;
 using TaleWorlds.Core.ViewModelCollection.Selector;

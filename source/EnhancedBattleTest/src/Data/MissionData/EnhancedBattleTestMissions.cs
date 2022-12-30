@@ -1,19 +1,10 @@
 ﻿using EnhancedBattleTest.Config;
-using EnhancedBattleTest.Data.MissionData.Logic;
 using EnhancedBattleTest.Multiplayer.Data.MissionData;
-using EnhancedBattleTest.SinglePlayer.Data.MissionData;
-using SandBox;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
-using TaleWorlds.Library;
-using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
-using TaleWorlds.MountAndBlade.Missions.Handlers;
-using TaleWorlds.MountAndBlade.Source.Missions;
-using TaleWorlds.MountAndBlade.Source.Missions.Handlers.Logic;
 
 namespace EnhancedBattleTest.Data.MissionData
 {
@@ -52,45 +43,22 @@ namespace EnhancedBattleTest.Data.MissionData
                 return OpenMultiplayerMission(config, mapName);
             }
 
-            return OpenSingleplayerMission(config, mapName);
+            return null;
         }
 
         public static Mission OpenMultiplayerMission(BattleConfig config, string map)
         {
-            var playerCulture = Utility.GetCulture(config.PlayerTeamConfig);
+            var playerCulture = Utility.GetCulture(config.PlayerSideConfig.Teams[0]);
             var playerSide = config.BattleTypeConfig.PlayerSide;
 
-            var enemyCulture = Utility.GetCulture(config.EnemyTeamConfig);
+            var enemyCulture = Utility.GetCulture(config.EnemySideConfig.Teams[0]);
             var enemySide = playerSide.GetOppositeSide();
             MPCombatant[] parties = new MPCombatant[2]
             {
-                MPCombatant.CreateParty(playerSide, playerCulture, config.PlayerTeamConfig, true),
-                MPCombatant.CreateParty(enemySide, enemyCulture, config.EnemyTeamConfig, false)
+                MPCombatant.CreateParty(playerSide, playerCulture, config.PlayerSideConfig.Teams[0], true),
+                MPCombatant.CreateParty(enemySide, enemyCulture, config.EnemySideConfig.Teams[0], false)
             };
 
-            return OpenMission(parties[0], parties[1], config, map);
-        }
-
-        public static Mission OpenSingleplayerMission(BattleConfig config, string map)
-        {
-            var playerCulture = Utility.GetCulture(config.PlayerTeamConfig);
-            var playerSide = config.BattleTypeConfig.PlayerSide;
-
-            var enemyCulture = Utility.GetCulture(config.EnemyTeamConfig);
-            var enemySide = playerSide.GetOppositeSide();
-            SPCombatant[] parties = new SPCombatant[2]
-            {
-                SPCombatant.CreateParty(EnhancedBattleTestPartyController.PlayerParty.Party, playerSide, playerCulture,
-                    config.PlayerTeamConfig, true),
-                SPCombatant.CreateParty(EnhancedBattleTestPartyController.EnemyParty.Party, enemySide, enemyCulture,
-                    config.EnemyTeamConfig, false)
-            };
-            if (playerSide == BattleSideEnum.Attacker)
-                Utility.SetMapEvents(EnhancedBattleTestPartyController.PlayerParty.Party,
-                    EnhancedBattleTestPartyController.EnemyParty.Party, config.BattleTypeConfig.BattleType);
-            else
-                Utility.SetMapEvents(EnhancedBattleTestPartyController.EnemyParty.Party,
-                    EnhancedBattleTestPartyController.PlayerParty.Party, config.BattleTypeConfig.BattleType);
             return OpenMission(parties[0], parties[1], config, map);
         }
 
@@ -145,145 +113,7 @@ namespace EnhancedBattleTest.Data.MissionData
             bool isReliefForceAttack = false,
             int timeOfDay = 6)
         {
-            bool hasAnySiegeTower = siegeWeaponsCountOfAttackers.ContainsKey(DefaultSiegeEngineTypes.SiegeTower);
-
-            string levelString;
-            switch (config.MapConfig.SceneLevel)
-            {
-                case 1:
-                    levelString = "level_1";
-                    break;
-                case 2:
-                    levelString = "level_2";
-                    break;
-                case 3:
-                    levelString = "level_3";
-                    break;
-                default:
-                    levelString = "";
-                    break;
-            }
-
-            var sceneLevelString =
-                !(isSallyOut | isReliefForceAttack) ? levelString + " siege" : levelString + " sally";
-            var playerSide = config.BattleTypeConfig.PlayerSide;
-            var enemySide = config.BattleTypeConfig.PlayerSide.GetOppositeSide();
-
-
-            var player = config.PlayerTeamConfig.Generals.Troops.FirstOrDefault()?.Character;
-            if (player == null)
-                return null;
-            bool hasPlayer = config.PlayerTeamConfig.HasGeneral;
-            bool isPlayerAttacker = playerSide == BattleSideEnum.Attacker;
-            IMissionTroopSupplier[] troopSuppliers = new IMissionTroopSupplier[2];
-            bool isMultiplayer = EnhancedBattleTestSubModule.IsMultiplayer;
-            troopSuppliers[(int)playerSide] = CreateTroopSupplier(playerParty, isMultiplayer);
-            troopSuppliers[(int)enemySide] = CreateTroopSupplier(enemyParty, isMultiplayer);
-            bool isPlayerGeneral = config.BattleTypeConfig.PlayerType == PlayerType.Commander || !hasPlayer;
-            bool isPlayerSergeant = hasPlayer && config.BattleTypeConfig.PlayerType == PlayerType.Sergeant;
-
-            List<CharacterObject> charactersInPlayerSideByPriority = null;
-            List<CharacterObject> charactersInEnemySideByPriority = null;
-            TextObject playerTeamGeneralName = null;
-            TextObject enemyTeamGeneralName = null;
-            if (!isMultiplayer)
-            {
-                var playerCharacter = player.CharacterObject as CharacterObject;
-                if (playerCharacter == null)
-                    return null;
-                charactersInPlayerSideByPriority = Utility.OrderHeroesByPriority(config.PlayerTeamConfig);
-                var playerGeneral = hasPlayer && isPlayerGeneral
-                    ? playerCharacter
-                    : (hasPlayer && charactersInPlayerSideByPriority.First() == playerCharacter
-                        ? charactersInPlayerSideByPriority.Skip(1).FirstOrDefault()
-                        : charactersInPlayerSideByPriority.FirstOrDefault());
-                if (playerGeneral != null)
-                {
-                    charactersInPlayerSideByPriority.Remove(playerGeneral);
-                    playerTeamGeneralName = playerGeneral.Name;
-                }
-                charactersInEnemySideByPriority = Utility.OrderHeroesByPriority(config.EnemyTeamConfig);
-                var enemyGeneral = charactersInEnemySideByPriority.FirstOrDefault();
-                if (enemyGeneral != null)
-                {
-                    charactersInEnemySideByPriority.Remove(enemyGeneral);
-                    enemyTeamGeneralName = enemyGeneral.Name;
-
-                }
-            }
-
-            AtmosphereInfo atmosphereInfo = AtmosphereModel.CreateAtmosphereInfoForMission(config.MapConfig.Season, timeOfDay);
-
-            var attackerSiegeWeapons =
-                GetSiegeWeaponTypes(siegeWeaponsCountOfAttackers);
-            var defenderSiegeWeapons =
-                GetSiegeWeaponTypes(siegeWeaponsCountOfDefenders);
-            return MissionState.OpenNew("EnhancedBattleTestSiegeBattle", new MissionInitializerRecord(scene)
-            {
-                PlayingInCampaignMode = false,
-                AtmosphereOnCampaign = atmosphereInfo,
-                SceneLevels = sceneLevelString,
-                TimeOfDay = timeOfDay
-            }, mission =>
-            {
-                List<MissionBehavior> missionBehaviourList = new List<MissionBehavior>
-                {
-                    new RemoveRetreatOption(),
-                    //new CampaignMissionComponent(),
-                    new CommanderLogic(config),
-                    new BattleSpawnLogic(isSallyOut
-                        ? "sally_out_set"
-                        : (isReliefForceAttack ? "relief_force_attack_set" : "battle_set")),
-                    new MissionOptionsComponent(),
-                    new BattleEndLogic(),
-                    new MissionCombatantsLogic(null, playerParty,
-                        !isPlayerAttacker ? playerParty : enemyParty,
-                        isPlayerAttacker ? playerParty : enemyParty,
-                        !isSallyOut ? Mission.MissionTeamAITypeEnum.Siege : Mission.MissionTeamAITypeEnum.SallyOut,
-                        isPlayerSergeant),
-                    new SiegeMissionPreparationHandler(isSallyOut, isReliefForceAttack, wallHitPointPercentages,
-                        hasAnySiegeTower),
-                    new MissionAgentSpawnLogic(troopSuppliers, playerSide, !isSallyOut ? Mission.BattleSizeType.SallyOut : Mission.BattleSizeType.Siege),
-                    new BattleObserverMissionLogic(),
-                    new CustomBattleAgentLogic(),
-                    //new AgentBattleAILogic(),
-                    new AmmoSupplyLogic(new List<BattleSideEnum> {BattleSideEnum.Defender}),
-                    new AgentVictoryLogic(),
-                    new MissionAgentPanicHandler(),
-                    new SiegeMissionController(
-                        /*attackerSiegeWeapons,
-                        defenderSiegeWeapons,*/
-                        isPlayerAttacker, isSallyOut),
-                    new SiegeDeploymentHandler(isPlayerAttacker/*,
-                        isPlayerAttacker ? attackerSiegeWeapons : defenderSiegeWeapons*/),
-                    new MissionBoundaryPlacer(),
-                    new MissionBoundaryCrossingHandler(),
-                    new AgentMoraleInteractionLogic(),
-                    new HighlightsController(),
-                    new BattleHighlightsController(),
-                    new AssignPlayerRoleInTeamMissionController(isPlayerGeneral, isPlayerSergeant, hasPlayer, charactersInPlayerSideByPriority?.Select(character => character.StringId).ToList()),
-                    new CreateBodyguardMissionBehavior(
-                        isPlayerAttacker ? playerTeamGeneralName : enemyTeamGeneralName,
-                        !isPlayerAttacker ? playerTeamGeneralName : enemyTeamGeneralName,
-                        null, null, false),
-                };
-                if (isSallyOut)
-                {
-                    missionBehaviourList.Add(new EnhancedBattleTestSiegeSallyOutMissionSpawnHandler(
-                        isPlayerAttacker ? enemyParty : playerParty,
-                        isPlayerAttacker ? playerParty : enemyParty));
-                }
-                else
-                {
-                    missionBehaviourList.Add(new EnhancedBattleTestSiegeMissionSpawnHandler(
-                        isPlayerAttacker ? enemyParty : playerParty,
-                        isPlayerAttacker ? playerParty : enemyParty));
-                }
-                //Settlement currentTown = SandBoxMissions.GetCurrentTown();
-                //if (currentTown != null)
-                //    missionBehaviourList.Add((MissionBehaviour)new WorkshopMissionHandler(currentTown));
-                return missionBehaviourList;
-            });
+            return null;
         }
 
 
@@ -295,94 +125,7 @@ namespace EnhancedBattleTest.Data.MissionData
             IEnhancedBattleTestCombatant enemyParty,
             int timeOfDay = 12)
         {
-            var playerSide = config.BattleTypeConfig.PlayerSide;
-            var enemySide = config.BattleTypeConfig.PlayerSide.GetOppositeSide();
-            var player = config.PlayerTeamConfig.Generals;
-            if (player == null)
-                return null;
-
-            bool hasPlayer = config.PlayerTeamConfig.HasGeneral;
-
-            bool isPlayerAttacker = playerSide == BattleSideEnum.Attacker;
-            IMissionTroopSupplier[] troopSuppliers = new IMissionTroopSupplier[2];
-            bool isMultiplayer = EnhancedBattleTestSubModule.IsMultiplayer;
-            troopSuppliers[(int)playerSide] = CreateTroopSupplier(playerParty, isMultiplayer);
-            troopSuppliers[(int)enemySide] = CreateTroopSupplier(enemyParty, isMultiplayer);
-            bool isPlayerGeneral = config.BattleTypeConfig.PlayerType == PlayerType.Commander;
-            bool isPlayerSergeant = hasPlayer && config.BattleTypeConfig.PlayerType == PlayerType.Sergeant;
-
-            List<CharacterObject> charactersInPlayerSideByPriority = null;
-            List<CharacterObject> charactersInEnemySideByPriority = null;
-            TextObject playerTeamGeneralName = null;
-            TextObject enemyTeamGeneralName = null;
-            if (!isMultiplayer)
-            {
-                var playerCharacter = config.PlayerTeamConfig.Generals.Troops.FirstOrDefault()?.Character.CharacterObject as CharacterObject;
-                if (playerCharacter == null)
-                    return null;
-                charactersInPlayerSideByPriority = Utility.OrderHeroesByPriority(config.PlayerTeamConfig);
-                var playerGeneral = hasPlayer && isPlayerGeneral
-                    ? playerCharacter
-                    : (hasPlayer && charactersInPlayerSideByPriority.First() == playerCharacter
-                        ? charactersInPlayerSideByPriority.Skip(1).FirstOrDefault()
-                        : charactersInPlayerSideByPriority.FirstOrDefault());
-                if (playerGeneral != null)
-                {
-                    charactersInPlayerSideByPriority.Remove(playerGeneral);
-                    playerTeamGeneralName = playerGeneral.Name;
-                }
-                charactersInEnemySideByPriority = Utility.OrderHeroesByPriority(config.EnemyTeamConfig);
-                var enemyGeneral = charactersInEnemySideByPriority.FirstOrDefault();
-                if (enemyGeneral != null)
-                {
-                    charactersInEnemySideByPriority.Remove(enemyGeneral);
-                    enemyTeamGeneralName = enemyGeneral.Name;
-                }
-            }
-
-
-            AtmosphereInfo atmosphereInfo = AtmosphereModel.CreateAtmosphereInfoForMission(config.MapConfig.Season, timeOfDay);
-            return MissionState.OpenNew("EnhancedBattleTestFieldBattle", new MissionInitializerRecord(scene)
-            {
-                DoNotUseLoadingScreen = false,
-                PlayingInCampaignMode = false,
-                AtmosphereOnCampaign = atmosphereInfo,
-                TimeOfDay = timeOfDay
-            }, mission =>
-                new MissionBehavior[]
-                {
-                    new RemoveRetreatOption(),
-                    //new CampaignMissionComponent(),
-                    new CommanderLogic(config),
-                    new MissionOptionsComponent(),
-                    new BattleEndLogic(),
-                    new MissionCombatantsLogic(null, playerParty,
-                        !isPlayerAttacker ? playerParty : enemyParty,
-                        isPlayerAttacker ? playerParty : enemyParty,
-                        Mission.MissionTeamAITypeEnum.FieldBattle, isPlayerSergeant),
-                    //new MissionDefaultCaptainAssignmentLogic(),
-                    new BattleObserverMissionLogic(),
-                    new CustomBattleAgentLogic(),
-                    new MissionAgentSpawnLogic(troopSuppliers, playerSide, Mission.BattleSizeType.Battle),
-                    new EnhancedBattleTestMissionSpawnHandler(!isPlayerAttacker ? playerParty : enemyParty,
-                        isPlayerAttacker ? playerParty : enemyParty),
-                    //new AgentBattleAILogic(),
-                    new AgentVictoryLogic(),
-                    new MissionAgentPanicHandler(),
-                    new MissionHardBorderPlacer(),
-                    new MissionBoundaryPlacer(),
-                    new MissionBoundaryCrossingHandler(),
-                    new BattleMissionAgentInteractionLogic(),
-                    //new FieldBattleController(),
-                    new AgentMoraleInteractionLogic(),
-                    new AssignPlayerRoleInTeamMissionController(isPlayerGeneral, isPlayerSergeant, hasPlayer,
-                        charactersInPlayerSideByPriority?.Select(character => character.StringId).ToList()),
-                    new CreateBodyguardMissionBehavior(
-                        isPlayerAttacker ? playerTeamGeneralName : enemyTeamGeneralName,
-                        !isPlayerAttacker ? playerTeamGeneralName : enemyTeamGeneralName),
-                    new HighlightsController(),
-                    new BattleHighlightsController()
-                });
+            return null;
         }
 
         private static IEnhancedBattleTestTroopSupplier CreateTroopSupplier(IEnhancedBattleTestCombatant combatant, bool isMultiplayer)
@@ -392,7 +135,7 @@ namespace EnhancedBattleTest.Data.MissionData
                 return new MPTroopSupplier(combatant);
             }
 
-            return new SPTroopSupplier(combatant);
+            return null;
         }
 
         private static Dictionary<SiegeEngineType, int> GetSiegeWeaponCount(List<string> siegeWeaponIds)

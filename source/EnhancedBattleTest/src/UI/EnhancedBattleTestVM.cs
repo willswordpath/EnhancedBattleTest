@@ -1,16 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using EnhancedBattleTest.Config;
 using EnhancedBattleTest.Data;
 using EnhancedBattleTest.Data.MissionData;
 using EnhancedBattleTest.GameMode;
+using EnhancedBattleTest.SinglePlayer;
 using EnhancedBattleTest.UI.Basic;
+using TaleWorlds.CampaignSystem.Encounters;
+using TaleWorlds.CampaignSystem.Map;
+using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.MountAndBlade.CustomBattle.CustomBattle;
+using TaleWorlds.MountAndBlade.CustomBattle.CustomBattle.SelectionItem;
+using Campaign = TaleWorlds.CampaignSystem.Campaign;
 
 namespace EnhancedBattleTest.UI
 {
@@ -169,9 +174,9 @@ namespace EnhancedBattleTest.UI
 
             StartButtonText = new TextVM(GameTexts.FindText("str_start"));
 
-            PlayerSide = new SideVM(_config.PlayerTeamConfig, true,
+            PlayerSide = new SideVM(_config.PlayerSideConfig, true,
                 _config.BattleTypeConfig);
-            EnemySide = new SideVM(_config.EnemyTeamConfig, false,
+            EnemySide = new SideVM(_config.EnemySideConfig, false,
                 _config.BattleTypeConfig);
 
             MapSelectionGroup = new MapSelectionGroupVM(_scenes);
@@ -203,7 +208,22 @@ namespace EnhancedBattleTest.UI
 
         private void RecoverConfig()
         {
-            MapSelectionGroup.SearchText = _config.MapConfig.MapNameSearchText;
+            MapSelectionGroup.OverridesPlayerPosition = _config.MapConfig.OverridesPlayerPosition;
+            MapSelectionGroup.IsSallyOutSelected = _config.MapConfig.IsSallyOutSelected;
+            if (_config.MapConfig.OverridesPlayerPosition || Campaign.Current == null || MobileParty.MainParty == null)
+            {
+                MapSelectionGroup.MapSelection.SelectedIndex = MapSelectionGroup.MapSelection.ItemList.FindIndex(vm => vm.MapId == _config.MapConfig.SelectedMapId);
+            }
+            else
+            {
+                MapPatchData mapPatchAtPosition = Campaign.Current.MapSceneWrapper.GetMapPatchAtPosition(MobileParty.MainParty.Position2D);
+                MapSelectionGroup.MapSelection.SelectedIndex = MapSelectionGroup.MapSelection.ItemList.FindIndex(vm =>
+                    vm.MapId == PlayerEncounter.GetBattleSceneForMapPatch(mapPatchAtPosition));
+            }
+            if (MapSelectionGroup.SelectedMap == null)
+            {
+                MapSelectionGroup.MapSelection.SelectedIndex = 0;
+            }
             //if (MapSelectionGroup.SearchText.IsStringNoneOrEmpty())
             //{
             //    MapSelectionGroup.SearchText = new TextObject("{=7i1vmgQ9}Select a Map").ToString();
@@ -242,21 +262,23 @@ namespace EnhancedBattleTest.UI
                 MapSelectionGroup.TimeOfDaySelection.ItemList.FirstOrDefault(vm =>
                     vm.TimeOfDay == _config.MapConfig.TimeOfDay) ??
                 MapSelectionGroup.TimeOfDaySelection.ItemList.FirstOrDefault());
+
+            MapSelectionGroup.RainDensitySelection.SelectedIndex = MapSelectionGroup.RainDensitySelection.ItemList.IndexOf(
+                MapSelectionGroup.RainDensitySelection.ItemList.FirstOrDefault(vm =>
+                    vm.RainDensity == _config.MapConfig.RainDensity) ??
+                MapSelectionGroup.RainDensitySelection.ItemList.FirstOrDefault());
+
+            MapSelectionGroup.FogDensitySelection.SelectedIndex = MapSelectionGroup.FogDensitySelection.ItemList.IndexOf(
+                MapSelectionGroup.FogDensitySelection.ItemList.FirstOrDefault(vm =>
+                    vm.FogDensity == _config.MapConfig.FogDensity) ??
+                MapSelectionGroup.FogDensitySelection.ItemList.FirstOrDefault());
         }
 
         public void ExecuteSwapTeam()
         {
-            {
-                var tmp = _config.PlayerTeamConfig;
-                _config.PlayerTeamConfig = _config.EnemyTeamConfig;
-                _config.EnemyTeamConfig = tmp;
-            }
+            (_config.PlayerSideConfig, _config.EnemySideConfig) = (_config.EnemySideConfig, _config.PlayerSideConfig);
             BattleTypeSelectionGroup.SwapSide();
-            {
-                var tmp = PlayerSide;
-                PlayerSide = EnemySide;
-                EnemySide = tmp;
-            }
+            (PlayerSide, EnemySide) = (EnemySide, PlayerSide);
             PlayerSide.IsPlayerSide = true;
             EnemySide.IsPlayerSide = false;
         }
@@ -266,7 +288,7 @@ namespace EnhancedBattleTest.UI
             ApplyConfig();
             _config.Serialize(EnhancedBattleTestSubModule.IsMultiplayer);
             _config = null;
-            MBGameManager.EndGame();
+            GameStateManager.Current.PopState();
         }
 
         public void ExecuteStart()
@@ -276,19 +298,20 @@ namespace EnhancedBattleTest.UI
             if (!ApplyConfig())
                 return;
 
-            var sceneData = GetMap();
-            if (sceneData == null)
+            var mapItem = GetMap();
+            if (mapItem == null)
                 return;
-            _config.Serialize(EnhancedBattleTestSubModule.IsMultiplayer);
-            GameTexts.SetVariable("MapName", sceneData.Name);
-            Utility.DisplayLocalizedText("str_ebt_current_map");
+            _config.Serialize(EnhancedBattleTestSubModule.IsMultiplayer);            
             EnhancedBattleTestPartyController.BattleConfig = _config;
-            EnhancedBattleTestMissions.OpenMission(_config, sceneData.Id);
+            //EnhancedBattleTestMissions.OpenMission(_config, mapItem.MapId);
+            BattleStarter.Start(_config, mapItem.MapId);
         }
 
         private bool ApplyConfig()
         {
-            _config.MapConfig.MapNameSearchText = MapSelectionGroup.SearchText;
+            _config.MapConfig.SelectedMapId = MapSelectionGroup.SelectedMap.MapId;
+            _config.MapConfig.OverridesPlayerPosition = MapSelectionGroup.OverridesPlayerPosition;
+            _config.MapConfig.IsSallyOutSelected = MapSelectionGroup.IsSallyOutSelected;
             if (MapSelectionGroup.SceneLevelSelection.SelectedItem != null)
                 _config.MapConfig.SceneLevel = MapSelectionGroup.SceneLevelSelection.SelectedItem.Level;
             if (MapSelectionGroup.WallHitpointSelection.SelectedItem != null)
@@ -296,9 +319,11 @@ namespace EnhancedBattleTest.UI
             if (MapSelectionGroup.SeasonSelection.SelectedItem != null)
                 _config.MapConfig.Season = MapSelectionGroup.SelectedSeasonId;
             if (MapSelectionGroup.TimeOfDaySelection.SelectedItem != null)
-            {
                 _config.MapConfig.TimeOfDay = MapSelectionGroup.SelectedTimeOfDay;
-            }
+            if (MapSelectionGroup.RainDensitySelection.SelectedItem != null)
+                _config.MapConfig.RainDensity = MapSelectionGroup.SelectedRainDensity;
+            if (MapSelectionGroup.FogDensitySelection.SelectedItem != null)
+                _config.MapConfig.FogDensity = MapSelectionGroup.SelectedFogDensity;
 
             _config.SiegeMachineConfig.AttackerMeleeMachines =
                 AttackerMeleeMachines.Select(vm => vm.MachineID).ToList();
@@ -307,7 +332,7 @@ namespace EnhancedBattleTest.UI
             _config.SiegeMachineConfig.DefenderMachines =
                 DefenderMachines.Select(vm => vm.MachineID).ToList();
             if (_config.BattleTypeConfig.BattleType == BattleType.Siege &&
-                (!_config.PlayerTeamConfig.HasGeneral || _config.PlayerTeamConfig.Generals.Troops.Count == 0))
+                !_config.PlayerSideConfig.Teams[0].HasGeneral || _config.PlayerSideConfig.Teams[0].Generals.Troops.Count == 0)
             {
                 Utility.DisplayLocalizedText("str_ebt_siege_no_player");
                 return false;
@@ -316,23 +341,21 @@ namespace EnhancedBattleTest.UI
             return true;
         }
 
-        private SceneData GetMap()
-        {
+        private MapItemVM GetMap()
+        {            
             var selectedMap = MapSelectionGroup.SelectedMap;
             if (selectedMap == null)
             {
-                MapSelectionGroup.RandomizeMap();
+                MapSelectionGroup.MapSelection.ExecuteRandomize();
                 selectedMap = MapSelectionGroup.SelectedMap;
                 if (selectedMap == null)
                 {
                     Utility.DisplayLocalizedText("str_ebt_no_map");
                     return null;
                 }
-
-                // Keep search text not changed.
-                MapSelectionGroup.SearchText = _config.MapConfig.MapNameSearchText;
             }
-            return _scenes.First(data => data.Name.ToString() == selectedMap.MapName);
+
+            return selectedMap;
         }
 
         private void OnPlayerTypeChange(bool isCommander)
@@ -346,25 +369,32 @@ namespace EnhancedBattleTest.UI
             for (var index = 0; index < MAX_ATTACKER_MELEE_MACHINE_COUNT; ++index)
                 AttackerMeleeMachines.Add(new CustomBattleSiegeMachineVM(
                     Utility.GetSiegeEngineType(_config.SiegeMachineConfig.AttackerMeleeMachines.ElementAtOrDefault(index)),
-                    OnMeleeMachineSelection, OnMeleeMachineResetSelection));
+                    OnMeleeMachineSelection, OnResetMachineSelection));
             AttackerRangedMachines = new MBBindingList<CustomBattleSiegeMachineVM>();
             for (var index = 0; index < MAX_ATTACKER_RANGED_MACHINE_COUNT; ++index)
                 AttackerRangedMachines.Add(new CustomBattleSiegeMachineVM(
                     Utility.GetSiegeEngineType(_config.SiegeMachineConfig.AttackerRangedMachines.ElementAtOrDefault(index)),
-                    OnAttackerRangedMachineSelection, OnAttackerRangedMachineResetSelection));
+                    OnAttackerRangedMachineSelection, OnResetMachineSelection));
             DefenderMachines = new MBBindingList<CustomBattleSiegeMachineVM>();
             for (var index = 0; index < MAX_DEFENDER_MACHINE_COUNT; ++index)
                 DefenderMachines.Add(new CustomBattleSiegeMachineVM(
                     Utility.GetSiegeEngineType(_config.SiegeMachineConfig.DefenderMachines.ElementAtOrDefault(index)),
-                    OnDefenderRangedMachineSelection, OnDefenderRangedMachineResetSelection));
+                    OnDefenderRangedMachineSelection, OnResetMachineSelection));
+            SetDefaultSiegeMachines();
         }
-
-        private void OnDefenderRangedMachineResetSelection(CustomBattleSiegeMachineVM obj)
+        private void SetDefaultSiegeMachines()
         {
-        }
-
-        private void OnAttackerRangedMachineResetSelection(CustomBattleSiegeMachineVM obj)
-        {
+            this.AttackerMeleeMachines[0].SetMachineType(DefaultSiegeEngineTypes.SiegeTower);
+            this.AttackerMeleeMachines[1].SetMachineType(DefaultSiegeEngineTypes.Ram);
+            this.AttackerMeleeMachines[2].SetMachineType(DefaultSiegeEngineTypes.SiegeTower);
+            this.AttackerRangedMachines[0].SetMachineType(DefaultSiegeEngineTypes.Trebuchet);
+            this.AttackerRangedMachines[1].SetMachineType(DefaultSiegeEngineTypes.Onager);
+            this.AttackerRangedMachines[2].SetMachineType(DefaultSiegeEngineTypes.Onager);
+            this.AttackerRangedMachines[3].SetMachineType(DefaultSiegeEngineTypes.FireBallista);
+            this.DefenderMachines[0].SetMachineType(DefaultSiegeEngineTypes.FireCatapult);
+            this.DefenderMachines[1].SetMachineType(DefaultSiegeEngineTypes.FireCatapult);
+            this.DefenderMachines[2].SetMachineType(DefaultSiegeEngineTypes.Catapult);
+            this.DefenderMachines[3].SetMachineType(DefaultSiegeEngineTypes.FireBallista);
         }
 
         private void ExecuteDoneDefenderCustomMachineSelection()
@@ -414,11 +444,6 @@ namespace EnhancedBattleTest.UI
             MBInformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData(new TextObject("{=MVOWsP48}Select a Melee Machine").ToString(), string.Empty, inquiryElements, false, 1, GameTexts.FindText("str_done").ToString(), "", selectedElements => selectedSlot.SetMachineType(selectedElements.First().Identifier as SiegeEngineType), null));
         }
 
-        private void OnMeleeMachineResetSelection(CustomBattleSiegeMachineVM selectedSlot)
-        {
-
-        }
-
         private void OnAttackerRangedMachineSelection(CustomBattleSiegeMachineVM selectedSlot)
         {
             List<InquiryElement> inquiryElements = new List<InquiryElement>
@@ -440,5 +465,6 @@ namespace EnhancedBattleTest.UI
                 inquiryElements.Add(new InquiryElement(defenderRangedMachine, defenderRangedMachine.Name.ToString(), null));
             MBInformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData(new TextObject("{=SLZzfNPr}Select a Ranged Machine").ToString(), string.Empty, inquiryElements, false, 1, GameTexts.FindText("str_done").ToString(), "", selectedElements => selectedSlot.SetMachineType(selectedElements[0].Identifier as SiegeEngineType), null));
         }
+        private void OnResetMachineSelection(CustomBattleSiegeMachineVM selectedSlot) => selectedSlot.SetMachineType((SiegeEngineType)null);
     }
 }

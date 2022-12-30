@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
+using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
-using TaleWorlds.Library;
 
 namespace EnhancedBattleTest.Config
 {
@@ -15,15 +15,21 @@ namespace EnhancedBattleTest.Config
             set => _bannerKey = !string.IsNullOrEmpty(value) ? value : _bannerKey;
         }
 
-        [field: XmlIgnore]
-        public TroopGroupConfig Generals { get; set; } = new TroopGroupConfig(EnhancedBattleTestSubModule.IsMultiplayer);
-
-        public bool HasGeneral;
+        public bool CustomBanner { get; set; }
 
         [field: XmlIgnore]
-        public TroopGroupConfig[] TroopGroups { get; set; } = new TroopGroupConfig[8];
+        public TroopGroupConfig Generals { get; set; } =
+            new TroopGroupConfig(EnhancedBattleTestSubModule.IsMultiplayer, true);
 
-        public int TacticLevel = 0;
+        public bool HasGeneral { get; set; }
+
+        [field: XmlIgnore]
+        public TroopGroupConfig Troops { get; set; } =
+            new TroopGroupConfig(EnhancedBattleTestSubModule.IsMultiplayer);
+
+        public bool CustomTacticLevel { get; set; }
+
+        public int TacticLevel { get; set; } = 0;
 
         [XmlIgnore]
         public uint Color1 => Banner.BannerDataList.Count > 0
@@ -38,11 +44,17 @@ namespace EnhancedBattleTest.Config
         [XmlIgnore]
         public Banner Banner => new Banner(BannerKey);
 
+        public Banner GetPreviewBanner()
+        {
+            return CustomBanner || EnhancedBattleTestSubModule.IsMultiplayer
+                ? new Banner(BannerKey)
+                : (HasGeneral
+                    ? (Generals.Troops[0].Character.CharacterObject as CharacterObject).HeroObject?.ClanBanner
+                    : null) ?? CampaignData.NeutralFaction.Banner;
+        }
 
         public TeamConfig()
         {
-            for (int i = 0; i < TroopGroups.Length; ++i)
-                TroopGroups[i] = new TroopGroupConfig(EnhancedBattleTestSubModule.IsMultiplayer);
         }
     }
 }

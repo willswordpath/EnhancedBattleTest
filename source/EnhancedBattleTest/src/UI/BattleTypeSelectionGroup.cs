@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using EnhancedBattleTest.Config;
+﻿using EnhancedBattleTest.Config;
 using EnhancedBattleTest.UI.Basic;
+using System;
+using System.Collections.Generic;
 using TaleWorlds.Core;
-using TaleWorlds.Core.ViewModelCollection;
 using TaleWorlds.Core.ViewModelCollection.Selector;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
@@ -59,9 +58,9 @@ namespace EnhancedBattleTest.UI
             }, (int)_config.PlayerType, OnPlayerTypeSelectionChange);
             PlayerSideSelection = new SelectorVM<SelectorItemVM>(new List<TextObject>()
             {
-                GameTexts.FindText("str_ebt_side", "Attacker"),
                 GameTexts.FindText("str_ebt_side", "Defender"),
-            }, _config.PlayerSide == BattleSideEnum.Defender ? 1 : 0, OnPlayerSideChanged);
+                GameTexts.FindText("str_ebt_side", "Attacker"),
+            }, _config.PlayerSide == BattleSideEnum.Defender ? 0 : 1, OnPlayerSideChanged);
             EquipmentModifierTypeSelection = new SelectorVM<SelectorItemVM>(new List<TextObject>()
             {
                 GameTexts.FindText("str_ebt_modifier_type", EquipmentModifierType.Random.ToString()),
@@ -95,7 +94,7 @@ namespace EnhancedBattleTest.UI
 
         private void OnPlayerSideChanged(SelectorVM<SelectorItemVM> selector)
         {
-            _config.PlayerSide = selector.SelectedIndex == 1 ? BattleSideEnum.Defender : BattleSideEnum.Attacker;
+            _config.PlayerSide = selector.SelectedIndex == 0 ? BattleSideEnum.Defender : BattleSideEnum.Attacker;
         }
 
         private void OnEquipmentModifierType(SelectorVM<SelectorItemVM> selector)

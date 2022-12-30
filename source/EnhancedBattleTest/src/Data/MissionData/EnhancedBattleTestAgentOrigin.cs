@@ -80,13 +80,14 @@ namespace EnhancedBattleTest.Data.MissionData
             bool hasFormation,
             bool spawnWithHorse,
             bool isReinforcement,
-            /*bool enforceSpawningOnInitialPoint,*/
+            bool enforceSpawningOnInitialPoint,
             int formationTroopCount,
             int formationTroopIndex,
             bool isAlarmed,
             bool wieldInitialWeapons,
-            bool forceDismounted = false,
-            string specialActionSet = null,
-            MatrixFrame? initFrame = null);
+            bool forceDismounted,
+            Vec3? initialPosition,
+            Vec2? initialDirection,
+            string specialActionSet = null);
     }
 }

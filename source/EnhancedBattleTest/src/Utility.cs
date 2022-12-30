@@ -1,8 +1,8 @@
-﻿using System;
+﻿using EnhancedBattleTest.Config;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using EnhancedBattleTest.Config;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.MapEvents;
 using TaleWorlds.CampaignSystem.Party;
@@ -11,8 +11,6 @@ using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.ObjectSystem;
-using Campaign = EnhancedBattleTest.GameMode.Campaign;
-
 namespace EnhancedBattleTest
 {
     public static class Utility
@@ -152,14 +150,11 @@ namespace EnhancedBattleTest
                 if (character != null)
                     return character.Character.CharacterObject.Culture;
             }
-
-            foreach (var troopGroupConfig in config.TroopGroups)
+            
+            foreach (var troopConfig in config.Troops.Troops)
             {
-                foreach (var troopConfig in troopGroupConfig.Troops)
-                {
-                    if (troopConfig.Number > 0)
-                        return troopConfig.Character.CharacterObject.Culture;
-                }
+                if (troopConfig.Number > 0)
+                    return troopConfig.Character.CharacterObject.Culture;
             }
             return Game.Current.ObjectManager.GetObject<BasicCultureObject>(culture => true);
         }
@@ -180,8 +175,9 @@ namespace EnhancedBattleTest
                 if (!isSergeant || formation.PlayerOwner != null)
                 {
                     bool isAIControlled = formation.IsAIControlled;
+                    bool isSplittableByAI = formation.IsSplittableByAI;
                     formation.PlayerOwner = mission.MainAgent;
-                    formation.SetControlledByAI(isAIControlled);
+                    formation.SetControlledByAI(isAIControlled, isSplittableByAI);
                 }
             }
         }
@@ -214,10 +210,10 @@ namespace EnhancedBattleTest
                 return null;
             //var result = new ItemModifier { ID = string.Empty };
             var result = MBObjectManager.Instance.CreateObject<ItemModifier>(string.Empty);
-            /*float sum = 0;
-            foreach (var probability in group.ItemModifiersWithProbability.Values)
+            float sum = group.NoModifierLootScore;
+            foreach (var itemModifier in group.ItemModifiers)
             {
-                sum += probability.Probability;
+                sum += itemModifier.LootDropScore;
             }
 
             float damage = 0;
@@ -238,26 +234,26 @@ namespace EnhancedBattleTest
             float mountHitPoints = 0;
 
             var bindingFlag = BindingFlags.NonPublic | BindingFlags.Instance;
-            foreach (var modifier in group.ItemModifiersWithProbability.Values)
+            foreach (var itemModifier in group.ItemModifiers)
             {
-                if (modifier.ItemModifier == null)
+                if (itemModifier == null)
                     continue;
-                damage += modifier.ItemModifier.ModifyDamage(0) * modifier.Probability / sum;
-                speed += modifier.ItemModifier.ModifySpeed(0) * modifier.Probability / sum;
-                missileSpeed += modifier.ItemModifier.ModifyMissileSpeed(0) * modifier.Probability / sum;
-                armor += modifier.ItemModifier.ModifyArmor(0) * modifier.Probability / sum;
-                //rankIndex += modifier.ItemModifier.RankIndex * modifier.Probability / sum;
-                priceMultiplier += modifier.ItemModifier.PriceMultiplier * modifier.Probability / sum;
-                //weightMultiplier += modifier.ItemModifier.WeightMultiplier * modifier.Probability / sum;
-                //oldness += modifier.ItemModifier.Oldness * modifier.Probability / sum;
-                //factorOne += modifier.ItemModifier.FactorOne * modifier.Probability / sum;
-                //factorTwo += modifier.ItemModifier.FactorTwo * modifier.Probability / sum;
-                hitPoints += modifier.ItemModifier.ModifyHitPoints(0) * modifier.Probability / sum;
-                stackCount += modifier.ItemModifier.ModifyStackCount(0) * modifier.Probability / sum;
-                mountSpeed += modifier.ItemModifier.ModifyMountSpeed(0) * modifier.Probability / sum;
-                maneuver += modifier.ItemModifier.ModifyMountManeuver(0) * modifier.Probability / sum;
-                chargeDamage += modifier.ItemModifier.ModifyMountCharge(0) * modifier.Probability / sum;
-                mountHitPoints += modifier.ItemModifier.ModifyMountHitPoints(0) * modifier.Probability / sum;
+                damage += itemModifier.ModifyDamage(0) * itemModifier.LootDropScore / sum;
+                speed += itemModifier.ModifySpeed(0) * itemModifier.LootDropScore / sum;
+                missileSpeed += itemModifier.ModifyMissileSpeed(0) * itemModifier.LootDropScore / sum;
+                armor += itemModifier.ModifyArmor(0) * itemModifier.LootDropScore / sum;
+                //rankIndex += itemModifier.RankIndex * itemModifier.LootDropScore / sum;
+                priceMultiplier += itemModifier.PriceMultiplier * itemModifier.LootDropScore / sum;
+                //weightMultiplier += itemModifier.WeightMultiplier * itemModifier.LootDropScore / sum;
+                //oldness += itemModifier.Oldness * itemModifier.LootDropScore / sum;
+                //factorOne += itemModifier.FactorOne * itemModifier.LootDropScore / sum;
+                //factorTwo += itemModifier.FactorTwo * itemModifier.LootDropScore / sum;
+                hitPoints += itemModifier.ModifyHitPoints(0) * itemModifier.LootDropScore / sum;
+                stackCount += itemModifier.ModifyStackCount(0) * itemModifier.LootDropScore / sum;
+                mountSpeed += itemModifier.ModifyMountSpeed(0) * itemModifier.LootDropScore / sum;
+                maneuver += itemModifier.ModifyMountManeuver(0) * itemModifier.LootDropScore / sum;
+                chargeDamage += itemModifier.ModifyMountCharge(0) * itemModifier.LootDropScore / sum;
+                mountHitPoints += itemModifier.ModifyMountHitPoints(0) * itemModifier.LootDropScore / sum;
             }
 
             typeof(ItemModifier).GetField("_damage", bindingFlag)?.SetValue(result, (int)damage);
@@ -275,14 +271,13 @@ namespace EnhancedBattleTest
             typeof(ItemModifier).GetField("_mountSpeed", bindingFlag)?.SetValue(result, (int)mountSpeed);
             typeof(ItemModifier).GetField("_maneuver", bindingFlag)?.SetValue(result, (int)maneuver);
             typeof(ItemModifier).GetField("_chargeDamage", bindingFlag)?.SetValue(result, (int)chargeDamage);
-            typeof(ItemModifier).GetField("_mountHitPoints", bindingFlag)?.SetValue(result, (int)mountHitPoints);*/
+            typeof(ItemModifier).GetField("_mountHitPoints", bindingFlag)?.SetValue(result, (int)mountHitPoints);
             return result;
         }
 
         public static List<CharacterObject> OrderHeroesByPriority(TeamConfig teamConfig)
         {
-            var characters = teamConfig.TroopGroups.SelectMany(troopGroupConfig =>
-                troopGroupConfig.Troops.Select(troopConfig => troopConfig.Character));
+            var characters = teamConfig.Troops.Troops.Select(troopConfig => troopConfig.Character);
             if (teamConfig.HasGeneral)
                 characters = characters.Concat(teamConfig.Generals.Troops.Select(troopConfig => troopConfig.Character));
             return characters.Select(character => character.CharacterObject as CharacterObject)
@@ -327,11 +322,10 @@ namespace EnhancedBattleTest
                 new FlattenedTroopRosterElement(GetCharacterObject(troopConfig.Character.CharacterObject),
                     teamConfig.HasGeneral ? RosterTroopState.Active : RosterTroopState.WoundedInThisBattle)).ToArray());
 
-            party.MemberRoster.Add(teamConfig.TroopGroups.SelectMany(troopGroupConfig =>
-                troopGroupConfig.Troops.SelectMany(troopConfig =>
+            party.MemberRoster.Add(teamConfig.Troops.Troops.SelectMany(troopConfig =>
                     Enumerable.Repeat(
                         new FlattenedTroopRosterElement(GetCharacterObject(troopConfig.Character.CharacterObject)),
-                        troopConfig.Number))));
+                        troopConfig.Number)));
         }
 
         public static CharacterObject GetCharacterObject(BasicCharacterObject character)
