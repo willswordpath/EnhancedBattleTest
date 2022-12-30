@@ -2,6 +2,9 @@
 
 A mod for Mount&Blade Bannerlord that provides more powerful custom battle.
 
+## Version  
+v1.0.2  
+
 ## Features
 - You can choose multiplayer characters or singleplayer characters that are used in campaign mode.
 
