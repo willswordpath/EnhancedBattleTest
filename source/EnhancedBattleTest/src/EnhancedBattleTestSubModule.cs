@@ -2,6 +2,7 @@ using EnhancedBattleTest.Data;
 using EnhancedBattleTest.Patch;
 using EnhancedBattleTest.Patch.Fix;
 using EnhancedBattleTest.SinglePlayer;
+using EnhancedBattleTest.GameMode;
 using EnhancedBattleTest.UI;
 using HarmonyLib;
 using System;
@@ -15,6 +16,8 @@ using TaleWorlds.ModuleManager;
 using TaleWorlds.MountAndBlade;
 using Campaign = TaleWorlds.CampaignSystem.Campaign;
 using MultiplayerGame = EnhancedBattleTest.GameMode.MultiplayerGame;
+using Module = TaleWorlds.MountAndBlade.Module;
+using TaleWorlds.Localization;
 
 namespace EnhancedBattleTest
 {
@@ -48,13 +51,13 @@ namespace EnhancedBattleTest
                     MBGameManager.StartNewGame(new EnhancedBattleTestGameManager<MultiplayerGame>());
                 }, false));
             */
-            //Module.CurrentModule.AddInitialStateOption(new InitialStateOption("EBTSingleplayerTest",
-            //    new TextObject("{=EnhancedBattleTest_singleplayerbattleoption}Singleplayer Battle Test"), 3,
-            //    () =>
-            //    {
-            //        IsMultiplayer = false;
-            //        MBGameManager.StartNewGame(new EnhancedBattleTestSingleplayerGameManager());
-            //    }, () => (false, new TextObject())));
+            Module.CurrentModule.AddInitialStateOption(new InitialStateOption("EBTSingleplayerTest",
+                new TextObject("{=EnhancedBattleTest_singleplayerbattleoption}Singleplayer Battle Test"), 3,
+                () =>
+                {
+                    IsMultiplayer = false;
+                    MBGameManager.StartNewGame(new EnhancedBattleTestSingleplayerGameManager());
+                }, () => (false, new TextObject())));
             Patch_MapScreen.Patch();
             Patch_Hero.Patch();
             Patch_AssignPlayerRoleInTeamMissionController.Patch();
