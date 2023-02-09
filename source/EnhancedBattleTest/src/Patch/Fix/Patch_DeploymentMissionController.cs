@@ -18,7 +18,7 @@ namespace EnhancedBattleTest.Patch.Fix
             {
                 _harmony.Patch(
                     typeof(DeploymentMissionController).GetMethod(
-                        nameof(DeploymentMissionController.FinishDeployment),
+                        nameof(DeploymentMissionController.FinishPlayerDeployment),
                         BindingFlags.Instance | BindingFlags.Public),
                     prefix: new HarmonyMethod(typeof(Patch_DeploymentMissionController).GetMethod(
                         nameof(Prefix_FinishDeployment),
@@ -32,6 +32,7 @@ namespace EnhancedBattleTest.Patch.Fix
             return true;
         }
 
+        private static MethodInfo InvokePlayerDeploymentFinishMethod = typeof(DeploymentMissionController).GetMethod("InvokePlayerDeploymentFinish", BindingFlags.NonPublic | BindingFlags.Instance);
 
         // Fix the issue that when no player character is spawned, the player choice will be automatically made in OrderOfBattleVM.
         // See the following code in OrderOfBattleVM.FinalizeDeployment():
@@ -48,7 +49,7 @@ namespace EnhancedBattleTest.Patch.Fix
         {
             if (__instance.Mission.MainAgent == null)
             {
-                __instance.OnBeforeDeploymentFinished();
+                __instance.OnBeforePlayerDeploymentFinished();
                 if (____isPlayerAttacker)
                 {
                     foreach (Agent agent in __instance.Mission.Agents)
@@ -63,8 +64,9 @@ namespace EnhancedBattleTest.Patch.Fix
                     }
                 }
                 //Mission.Current.IsTeleportingAgents = false;
+                InvokePlayerDeploymentFinishMethod.Invoke(__instance, new object[] { });
                 __instance.Mission.IsTeleportingAgents = false;
-                Mission.Current.OnDeploymentFinished();
+                //Mission.Current.OnDeploymentFinished();
                 foreach (Agent agent in __instance.Mission.Agents)
                 {
                     if (agent.IsAIControlled)
@@ -84,7 +86,7 @@ namespace EnhancedBattleTest.Patch.Fix
                 //mainAgent.Controller = Agent.ControllerType.Player;
                 Mission.Current.AllowAiTicking = true;
                 __instance.Mission.DisableDying = false;
-                ___MissionAgentSpawnLogic.SetReinforcementsSpawnEnabled(value: true);
+                ___MissionAgentSpawnLogic.SetReinforcementsSpawnTimerEnabled(value: true);
                 __instance.Mission.RemoveMissionBehavior(__instance);
                 return false;
             }

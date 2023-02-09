@@ -73,7 +73,7 @@ namespace EnhancedBattleTest.Multiplayer.Data.MissionData
             {
                 Formation formation = team.GetFormation(MPCharacter.FormationIndex);
                 agentBuildData.Formation(formation);
-                agentBuildData.FormationTroopSpawnCount(formationTroopCount).FormationTroopSpawnIndex(formationTroopIndex);
+                agentBuildData.FormationTroopCount(formationTroopCount).FormationTroopIndex(formationTroopIndex);
             }
             if (MPCharacter.IsPlayer)
                 agentBuildData.Controller(Agent.ControllerType.Player);
