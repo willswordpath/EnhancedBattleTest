@@ -85,6 +85,7 @@ namespace EnhancedBattleTest.Patch.Fix
                 Mission.Current.AllowAiTicking = true;
                 __instance.Mission.DisableDying = false;
                 ___MissionAgentSpawnLogic.SetReinforcementsSpawnEnabled(value: true);
+                __instance.OnAfterDeploymentFinished();
                 __instance.Mission.RemoveMissionBehavior(__instance);
                 return false;
             }
